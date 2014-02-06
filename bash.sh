@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-# This can be used to find the hostname in AWS:
-# PUBLIC_HOSTNAME="$(curl http://169.254.169.254/latest/meta-data/public-hostname 2>/dev/null)"
+# PUBLIC_HOSTNAME=`curl --silent --connect-timeout 1 http://169.254.169.254/latest/meta-data/public-hostname`
+# PUBLIC_IP=`curl --silent --connect-timeout 1 http://169.254.169.254/latest/meta-data/public-ipv4`
 
 # open port 80
 sudo iptables -I INPUT 5 -p tcp -m tcp --dport 80 -j ACCEPT
@@ -38,17 +38,7 @@ echo "Installing Nginx..."
 sudo yum -y install nginx
 
 # configure nginx
-sudo sed -i -e "1s/worker_processes  1/worker_processes  4/" /etc/nginx/nginx.conf
-
-sudo sed -i -e "s/server_name  _;/#server_name  _;/" /etc/nginx/conf.d/default.conf
-sudo sed -i -e "s/index  index.html index.htm;/index  index.php index.html index.htm;/" /etc/nginx/conf.d/default.conf
-sudo sed -i -e "37s/#//" /etc/nginx/conf.d/default.conf
-sudo sed -i -e "38s/#    root           html;/    root           \/usr\/share\/nginx\/laravel/public;/" /etc/nginx/conf.d/default.conf
-sudo sed -i -e "39s/#//" /etc/nginx/conf.d/default.conf
-sudo sed -i -e "40s/#//" /etc/nginx/conf.d/default.conf
-sudo sed -i -e "41s/#    fastcgi_param  SCRIPT_FILENAME  \/scripts\$fastcgi_script_name;/    fastcgi_param  SCRIPT_FILENAME  \$document_root\$fastcgi_script_name;/" /etc/nginx/conf.d/default.conf
-sudo sed -i -e "42s/#//" /etc/nginx/conf.d/default.conf
-sudo sed -i -e "43s/#//" /etc/nginx/conf.d/default.conf
+sudo cp nginx.conf /etc/nginx/nginx.conf
 
 sudo service nginx start
 sudo chkconfig --levels 235 nginx on
@@ -57,7 +47,7 @@ echo ""
 
 
 echo "Installing php-fpm..."
-sudo yum -y install php-fpm
+sudo yum -y install php55w-fpm
 
 # configure php-fpm
 sudo sed -i -e "s/user = nobody/user = nginx/" /etc/php-fpm.d/www.conf
@@ -121,5 +111,6 @@ composer create-project laravel/laravel laravel
 echo "...Finished installing Laravel 4"
 echo ""
 
+# remember to set up your certificates
 
 echo "Fin."
