@@ -34,7 +34,8 @@ sudo sed -i -e "s/indent/trust/" /var/lib/pgsql/9.3/data/pg_hba.conf
 sudo service postgresql-9.3 start
 
 su - postgres
-
+createdb laravel
+exit
 
 echo "...Finished installing PostGRES"
 echo ""
