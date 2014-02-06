@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 
-# PUBLIC_HOSTNAME=`curl --silent --connect-timeout 1 http://169.254.169.254/latest/meta-data/public-hostname`
-# PUBLIC_IP=`curl --silent --connect-timeout 1 http://169.254.169.254/latest/meta-data/public-ipv4`
-
 # open port 80
 sudo iptables -I INPUT 5 -p tcp -m tcp --dport 80 -j ACCEPT
 sudo /sbin/service iptables save
@@ -20,16 +17,25 @@ echo ""
 echo "Installing PHP..."
 sudo yum -y update
 sudo yum -y install php55w php55w-opcache php55w-common php55w-cli php55w-pdo php55w-mcrypt php55w-mbstring php55w-xml php55w-pecl-memcache
+sudo yum -y install php55w-pdo php55w-pgsql
 sudo yum -y update
 echo "...Finished installing PHP"
 echo ""
 
 
 echo "Installing PostGRES..."
-curl -O http://yum.postgresql.org/9.2/redhat/rhel-6-x86_64/pgdg-centos92-9.2-6.noarch.rpm
-rpm -ivh pgdg-centos92-9.2-6.noarch.rpm
-sudo yum -y install postgresql92-server.x86_64 postgresql92-contrib.x86_64 postgresql92-devel.x86_64
-sudo yum -y update
+sudo curl -O http://yum.postgresql.org/9.3/redhat/rhel-6-x86_64/pgdg-centos93-9.3-1.noarch.rpm
+sudo rpm -ivh pgdg-centos93-9.3-1.noarch.rpm
+sudo service postgresql-9.3 initdb
+
+sudo chkconfig postgresql-9.3 on
+sudo sed -i -e "s/peer/trust/" /var/lib/pgsql/9.3/data/pg_hba.conf
+sudo sed -i -e "s/indent/trust/" /var/lib/pgsql/9.3/data/pg_hba.conf
+sudo service postgresql-9.3 start
+
+su - postgres
+
+
 echo "...Finished installing PostGRES"
 echo ""
 
