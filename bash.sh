@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-PUBLIC_HOSTNAME="$(curl http://169.254.169.254/latest/meta-data/public-hostname 2>/dev/null)"
+# This can be used to find the hostname in AWS:
+# PUBLIC_HOSTNAME="$(curl http://169.254.169.254/latest/meta-data/public-hostname 2>/dev/null)"
 
 # open port 80
 sudo iptables -I INPUT 5 -p tcp -m tcp --dport 80 -j ACCEPT
@@ -39,7 +40,7 @@ sudo yum -y install nginx
 # configure nginx
 sudo sed -i -e "1s/worker_processes  1/worker_processes  4/" /etc/nginx/nginx.conf
 
-sudo sed -i -e "s/server_name  _;/server_name  $PUBLIC_HOSTNAME;/" /etc/nginx/conf.d/default.conf
+sudo sed -i -e "s/server_name  _;/#server_name  _;/" /etc/nginx/conf.d/default.conf
 sudo sed -i -e "s/index  index.html index.htm;/index  index.php index.html index.htm;/" /etc/nginx/conf.d/default.conf
 sudo sed -i -e "37s/#//" /etc/nginx/conf.d/default.conf
 sudo sed -i -e "38s/#    root           html;/    root           \/usr\/share\/nginx\/laravel/public;/" /etc/nginx/conf.d/default.conf
