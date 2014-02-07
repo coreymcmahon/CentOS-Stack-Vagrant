@@ -62,7 +62,7 @@ sudo yum -y install php55w-fpm
 sudo sed -i -e "s/user = nobody/user = nginx/" /etc/php-fpm.d/www.conf
 sudo sed -i -e "s/group = nobody/group = nginx/" /etc/php-fpm.d/www.conf
 
-service php-fpm start
+sudo service php-fpm start
 sudo chkconfig --levels 235 php-fpm on
 echo "...Finished installing php-fpm"
 echo ""
@@ -75,7 +75,7 @@ wget http://rpms.famillecollet.com/enterprise/remi-release-6.rpm
 rpm -Uvh remi-release-6*.rpm epel-release-6*.rpm
 sudo yum install redis -y
 #start the service
-service redis start
+sudo service redis start
 #start on boot
 chkconfig redis on
 echo "...Finished installing Redis"
