@@ -7,6 +7,8 @@ sudo iptables -I INPUT 5 -p tcp -m tcp --dport 80 -j ACCEPT
 sudo /sbin/service iptables save
 sudo service iptables restart
 
+# ------------------------------------------------------------------------------
+
 echo "Running initial-setup yum update..."
 sudo rpm -Uvh http://mirror.webtatic.com/yum/el6/latest.rpm
 sudo yum -y update
@@ -14,6 +16,7 @@ sudo yum -y install wget git
 echo "...Finished running initial-setup yum update"
 echo ""
 
+# ------------------------------------------------------------------------------
 
 echo "Installing PHP..."
 sudo yum -y update
@@ -23,22 +26,47 @@ sudo yum -y update
 echo "...Finished installing PHP"
 echo ""
 
+# ------------------------------------------------------------------------------
 
-echo "Installing PostGRES..."
-sudo curl -O http://yum.postgresql.org/9.3/redhat/rhel-6-x86_64/pgdg-centos93-9.3-1.noarch.rpm
-sudo rpm -ivh pgdg-centos93-9.3-1.noarch.rpm
-sudo yum -y install postgresql93-server
-sudo service postgresql-9.3 initdb
-
-sudo chkconfig postgresql-9.3 on
-sudo sed -i -e "s/peer/trust/" /var/lib/pgsql/9.3/data/pg_hba.conf
-sudo sed -i -e "s/ident/trust/" /var/lib/pgsql/9.3/data/pg_hba.conf
-sudo service postgresql-9.3 start
-
-sudo -u postgres -s createdb laravel
-echo "...Finished installing PostGRES"
+echo "Installing latest version of epel-release rpm..."
+sudo cat <<EOM >/etc/yum.repos.d/epel-bootstrap.repo
+[epel]
+name=Bootstrap EPEL
+mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=epel-\$releasever&arch=\$basearch
+failovermethod=priority
+enabled=0
+gpgcheck=0
+EOM
+sudo yum --enablerepo=epel -y install epel-release
+sudo rm -f /etc/yum.repos.d/epel-bootstrap.repo
+echo "...Finished installing latest version of epel-release rpm"
 echo ""
 
+# ------------------------------------------------------------------------------
+
+echo "Installing PostGRES/GIS..."
+curl -O http://yum.postgresql.org/9.3/redhat/rhel-6-x86_64/pgdg-centos93-9.3-1.noarch.rpm
+sudo rpm -ivh pgdg-centos93-9.3-1.noarch.rpm
+sudo yum -y install postgresql93-server postgis2_93
+
+# initialize db and set up service
+sudo service postgresql-9.3 initdb
+
+# configure
+sudo sed -i -e "s/peer/trust/" /var/lib/pgsql/9.3/data/pg_hba.conf
+sudo sed -i -e "s/ident/trust/" /var/lib/pgsql/9.3/data/pg_hba.conf
+
+# start service
+sudo service postgresql-9.3 start
+sudo chkconfig --levels 235 postgresql-9.3 on
+
+# create database
+sudo -u postgres -s createdb laravel
+psql -U postgres -d laravel -c "CREATE EXTENSION postgis;"
+echo "...Finished installing PostGRES/GIS"
+echo ""
+
+# ------------------------------------------------------------------------------
 
 echo "Installing Nginx..."
 sudo yum -y install nginx
@@ -48,12 +76,13 @@ curl -O https://raw.github.com/coreymcmahon/CentOS-Stack-Vagrant/master/nginx.co
 sudo rm -f /etc/nginx/nginx.conf
 sudo cp nginx.conf /etc/nginx/nginx.conf
 
-# configure the service
+# start the service 
 sudo service nginx start
 sudo chkconfig --levels 235 nginx on
 echo "...Finished installing Nginx"
 echo ""
 
+# ------------------------------------------------------------------------------
 
 echo "Installing php-fpm..."
 sudo yum -y install php55w-fpm
@@ -62,25 +91,28 @@ sudo yum -y install php55w-fpm
 sudo sed -i -e "s/user = nobody/user = nginx/" /etc/php-fpm.d/www.conf
 sudo sed -i -e "s/group = nobody/group = nginx/" /etc/php-fpm.d/www.conf
 
+# start the service 
 sudo service php-fpm start
 sudo chkconfig --levels 235 php-fpm on
 echo "...Finished installing php-fpm"
 echo ""
 
+# ------------------------------------------------------------------------------
 
 echo "Installing Redis..."
 sudo yum -y update
 wget http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
 wget http://rpms.famillecollet.com/enterprise/remi-release-6.rpm
-rpm -Uvh remi-release-6*.rpm epel-release-6*.rpm
+sudo rpm -Uvh remi-release-6*.rpm epel-release-6*.rpm
 sudo yum install redis -y
-#start the service
+
+## start the service 
 sudo service redis start
-#start on boot
-chkconfig redis on
+sudo chkconfig --levels 235 redis on
 echo "...Finished installing Redis"
 echo ""
 
+# ------------------------------------------------------------------------------
 
 echo "Installing Elasticsearch..."
 cd ~
@@ -102,17 +134,20 @@ sudo /usr/local/share/elasticsearch/bin/service/elasticsearch install
 sudo sed -i -e "1s/<Path to ElasticSearch Home>/\/usr\/local\/share\/elasticsearch/" /usr/local/share/elasticsearch/bin/service/elasticsearch.conf
 sudo sed -i -e "2s/1024/256/" /usr/local/share/elasticsearch/bin/service/elasticsearch.conf
 
-sudo /etc/init.d/elasticsearch start
+# start the service 
+sudo service elasticsearch start
+sudo chkconfig --levels 235 elasticsearch on
 echo "...Finished installing Elasticsearch"
 echo ""
 
+# ------------------------------------------------------------------------------
 
 echo "Installing Python, pip and supervisord..."
 # @TODO
 echo "...Finished installing Python, pip and supervisord"
 echo ""
 
-
+# ------------------------------------------------------------------------------
 
 echo "Installing Composer..."
 curl -sS https://getcomposer.org/installer | php
@@ -120,6 +155,7 @@ sudo mv composer.phar /usr/local/bin/composer
 echo "...Finished installing Composer"
 echo ""
 
+# ------------------------------------------------------------------------------
 
 echo "Installing Laravel 4..."
 cd /usr/share/nginx/
@@ -129,5 +165,7 @@ echo "...Finished installing Laravel 4"
 echo ""
 
 # remember to set up your certificates
+
+# ------------------------------------------------------------------------------
 
 echo "Fin."
