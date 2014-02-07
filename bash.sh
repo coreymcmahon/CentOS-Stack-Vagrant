@@ -1,15 +1,16 @@
 #!/usr/bin/env bash
 
+cd ~
+
 # open port 80
 sudo iptables -I INPUT 5 -p tcp -m tcp --dport 80 -j ACCEPT
 sudo /sbin/service iptables save
 sudo service iptables restart
 
-
 echo "Running initial-setup yum update..."
 sudo rpm -Uvh http://mirror.webtatic.com/yum/el6/latest.rpm
 sudo yum -y update
-sudo yum -y install wget
+sudo yum -y install wget git
 echo "...Finished running initial-setup yum update"
 echo ""
 
@@ -26,6 +27,7 @@ echo ""
 echo "Installing PostGRES..."
 sudo curl -O http://yum.postgresql.org/9.3/redhat/rhel-6-x86_64/pgdg-centos93-9.3-1.noarch.rpm
 sudo rpm -ivh pgdg-centos93-9.3-1.noarch.rpm
+sudo yum -y install postgresql93-server
 sudo service postgresql-9.3 initdb
 
 sudo chkconfig postgresql-9.3 on
@@ -33,10 +35,7 @@ sudo sed -i -e "s/peer/trust/" /var/lib/pgsql/9.3/data/pg_hba.conf
 sudo sed -i -e "s/indent/trust/" /var/lib/pgsql/9.3/data/pg_hba.conf
 sudo service postgresql-9.3 start
 
-su - postgres
-createdb laravel
-exit
-
+sudo -u postgres -s createdb laravel
 echo "...Finished installing PostGRES"
 echo ""
 
@@ -44,9 +43,12 @@ echo ""
 echo "Installing Nginx..."
 sudo yum -y install nginx
 
-# configure nginx
+# copy the nginx config across (doing this via GitHub for portability)
+curl -O https://raw.github.com/coreymcmahon/CentOS-Stack-Vagrant/master/nginx.conf
+sudo rm -f /etc/nginx/nginx.conf
 sudo cp nginx.conf /etc/nginx/nginx.conf
 
+# configure the service
 sudo service nginx start
 sudo chkconfig --levels 235 nginx on
 echo "...Finished installing Nginx"
@@ -105,9 +107,16 @@ echo "...Finished installing Elasticsearch"
 echo ""
 
 
+echo "Installing Python, pip and supervisord..."
+# @TODO
+echo "...Finished installing Python, pip and supervisord"
+echo ""
+
+
+
 echo "Installing Composer..."
 curl -sS https://getcomposer.org/installer | php
-mv composer.phar /usr/local/bin/composer
+sudo mv composer.phar /usr/local/bin/composer
 echo "...Finished installing Composer"
 echo ""
 
@@ -115,6 +124,7 @@ echo ""
 echo "Installing Laravel 4..."
 cd /usr/share/nginx/
 composer create-project laravel/laravel laravel
+sudo chmod 777 -R /usr/share/nginx/laravel/app/storage/
 echo "...Finished installing Laravel 4"
 echo ""
 
