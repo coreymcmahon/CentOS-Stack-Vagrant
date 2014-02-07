@@ -32,7 +32,7 @@ sudo service postgresql-9.3 initdb
 
 sudo chkconfig postgresql-9.3 on
 sudo sed -i -e "s/peer/trust/" /var/lib/pgsql/9.3/data/pg_hba.conf
-sudo sed -i -e "s/indent/trust/" /var/lib/pgsql/9.3/data/pg_hba.conf
+sudo sed -i -e "s/ident/trust/" /var/lib/pgsql/9.3/data/pg_hba.conf
 sudo service postgresql-9.3 start
 
 sudo -u postgres -s createdb laravel
