@@ -18,7 +18,7 @@ prog="supervisord"
 
 prefix="/usr/"
 exec_prefix="${prefix}"
-prog_bin="${exec_prefix}/bin/supervisord"
+prog_bin="${exec_prefix}/bin/supervisord -c /etc/supervisord.conf"
 PIDFILE="/var/run/$prog.pid"
 
 start()

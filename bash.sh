@@ -158,7 +158,7 @@ echo_supervisord_conf > supervisord.conf
 sudo cp supervisord.conf /etc/supervisord.conf
 sudo mkdir /etc/supervisord.d/
 
-sudo cat <<EOM >/etc/supervisord.conf
+sudo cat <<EOM >>/etc/supervisord.conf
 [include]
 files = /etc/supervisord.d/*.conf
 EOM
@@ -171,13 +171,16 @@ sudo chmod +x /etc/rc.d/init.d/supervisord
 sudo chkconfig --add supervisord
 sudo chkconfig supervisord on
 
+# "additional don't forget to specify the --env and --tries"
 sudo cat <<EOM >/etc/supervisord.d/laravel-listener.conf
 [program:laravel-listener]
 command=php artisan queue:listen
-directory=/usr/shared/nginx/laravel
-stdout_logfile=/usr/shared/nginx/laravel/app/storage/logs/myqueue_supervisord.log
+directory=/usr/share/nginx/laravel
+stdout_logfile=/usr/share/nginx/laravel/app/storage/logs/myqueue_supervisord.log
 redirect_stderr=true
 EOM
+
+sudo service supervisord start
 
 echo "...Finished installing Python, pip and supervisord"
 echo ""
@@ -203,7 +206,9 @@ echo ""
 
 # ------------------------------------------------------------------------------
 
-# start laravel queue listener
-sudo service supervisord start
+sudo touch /usr/share/nginx/laravel/app/storage/logs/myqueue_supervisord.log
+chmod 777 /usr/share/nginx/laravel/app/storage/logs/myqueue_supervisord.log
+sudo supervisorctl add laravel-listener
+sudo supervisorctl start laravel-listener
 
 echo "Fin."
