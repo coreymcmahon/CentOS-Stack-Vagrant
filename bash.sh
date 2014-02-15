@@ -143,7 +143,42 @@ echo ""
 # ------------------------------------------------------------------------------
 
 echo "Installing Python, pip and supervisord..."
-# @TODO
+
+sudo yum -y install python-setuptools
+sudo easy_install pip
+sudo pip install virtualenvwrapper
+sudo pip install supervisor
+
+sudo cat <<EOM >>~/.bashrc
+export WORKON_HOME=$HOME/.virtualenvs
+source /usr/bin/virtualenvwrapper.sh
+EOM
+
+echo_supervisord_conf > supervisord.conf
+sudo cp supervisord.conf /etc/supervisord.conf
+sudo mkdir /etc/supervisord.d/
+
+sudo cat <<EOM >/etc/supervisord.conf
+[include]
+files = /etc/supervisord.d/*.conf
+EOM
+
+# copy the nginx config across (doing this via GitHub for portability)
+curl -O https://raw.github.com/coreymcmahon/CentOS-Stack-Vagrant/master/supervisord
+sudo cp supervisord /etc/rc.d/init.d/supervisord
+
+sudo chmod +x /etc/rc.d/init.d/supervisord
+sudo chkconfig --add supervisord
+sudo chkconfig supervisord on
+
+sudo cat <<EOM >/etc/supervisord.d/laravel-listener.conf
+[program:laravel-listener]
+command=php artisan queue:listen
+directory=/usr/shared/nginx/laravel
+stdout_logfile=/usr/shared/nginx/laravel/app/storage/logs/myqueue_supervisord.log
+redirect_stderr=true
+EOM
+
 echo "...Finished installing Python, pip and supervisord"
 echo ""
 
@@ -167,5 +202,8 @@ echo ""
 # remember to set up your certificates
 
 # ------------------------------------------------------------------------------
+
+# start laravel queue listener
+sudo service supervisord start
 
 echo "Fin."
