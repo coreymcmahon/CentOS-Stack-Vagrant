@@ -11,7 +11,7 @@ sudo service iptables restart
 
 echo "Running initial-setup yum update..."
 sudo rpm -Uvh http://mirror.webtatic.com/yum/el6/latest.rpm
-sudo yum -y update
+sudo yum -y updates
 sudo yum -y install wget git
 echo "...Finished running initial-setup yum update"
 echo ""
@@ -163,7 +163,7 @@ sudo cat <<EOM >>/etc/supervisord.conf
 files = /etc/supervisord.d/*.conf
 EOM
 
-# copy the nginx config across (doing this via GitHub for portability)
+# copy the supervisord daemon config across (doing this via GitHub for portability)
 curl -O https://raw.github.com/coreymcmahon/CentOS-Stack-Vagrant/master/supervisord
 sudo cp supervisord /etc/rc.d/init.d/supervisord
 
