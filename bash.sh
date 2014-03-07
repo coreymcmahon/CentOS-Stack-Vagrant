@@ -20,7 +20,7 @@ echo ""
 
 echo "Installing PHP..."
 sudo yum -y update
-sudo yum -y install php55w php55w-opcache php55w-common php55w-cli php55w-pdo php55w-mcrypt php55w-mbstring php55w-xml php55w-pecl-memcache
+sudo yum -y install php55w php55w-opcache php55w-common php55w-cli php55w-pdo php55w-mcrypt php55w-mbstring php55w-xml php55w-pecl-memcache php55w-gd
 sudo yum -y install php55w-pdo php55w-pgsql
 sudo yum -y update
 echo "...Finished installing PHP"
