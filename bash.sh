@@ -119,7 +119,8 @@ cd ~
 sudo yum update
 sudo yum -y install java-1.7.0-openjdk
 
-wget http://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-0.20.2.tar.gz -O elasticsearch.tar.gz
+# wget http://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-0.20.2.tar.gz -O elasticsearch.tar.gz
+wget https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.0.1.tar.gz -O elasticsearch.tar.gz
 sudo tar -xf elasticsearch.tar.gz
 sudo rm elasticsearch.tar.gz
 sudo mv elasticsearch-* elasticsearch
