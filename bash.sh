@@ -119,7 +119,6 @@ cd ~
 sudo yum update
 sudo yum -y install java-1.7.0-openjdk
 
-# wget http://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-0.20.2.tar.gz -O elasticsearch.tar.gz
 wget https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.0.1.tar.gz -O elasticsearch.tar.gz
 sudo tar -xf elasticsearch.tar.gz
 sudo rm elasticsearch.tar.gz
@@ -181,8 +180,6 @@ stdout_logfile=/usr/share/nginx/laravel/app/storage/logs/myqueue_supervisord.log
 redirect_stderr=true
 EOM
 
-sudo service supervisord start
-
 echo "...Finished installing Python, pip and supervisord"
 echo ""
 
@@ -209,6 +206,7 @@ echo ""
 
 sudo touch /usr/share/nginx/laravel/app/storage/logs/myqueue_supervisord.log
 chmod 777 /usr/share/nginx/laravel/app/storage/logs/myqueue_supervisord.log
+sudo service supervisord start
 sudo supervisorctl add laravel-listener
 sudo supervisorctl start laravel-listener
 
