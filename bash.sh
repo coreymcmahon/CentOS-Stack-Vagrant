@@ -174,7 +174,7 @@ sudo chkconfig supervisord on
 # "additional don't forget to specify the --env and --tries"
 sudo cat <<EOM >/etc/supervisord.d/laravel-listener.conf
 [program:laravel-listener]
-command=php artisan queue:listen
+command=php artisan queue:listen --tries=3 --timeout=120 --memory=1024 --delay=60
 directory=/usr/share/nginx/laravel
 stdout_logfile=/usr/share/nginx/laravel/app/storage/logs/myqueue_supervisord.log
 redirect_stderr=true
@@ -196,11 +196,17 @@ echo ""
 echo "Installing Laravel 4..."
 cd /usr/share/nginx/
 composer create-project laravel/laravel laravel
+
+# set permissions for nginx user group
+sudo chgrp -R nginx /usr/share/nginx/laravel
+sudo chmod -R g+w /usr/share/nginx/laravel
+sudo find /usr/share/nginx/laravel -type d -exec chmod 2775 {} \;
+sudo find /usr/share/nginx/laravel -type f -exec chmod ug+rw {} \;
+
+# set permissions for storage folder
 sudo chmod 777 -R /usr/share/nginx/laravel/app/storage/
 echo "...Finished installing Laravel 4"
 echo ""
-
-# remember to set up your certificates
 
 # ------------------------------------------------------------------------------
 
