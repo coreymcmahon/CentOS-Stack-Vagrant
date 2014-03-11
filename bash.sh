@@ -90,6 +90,8 @@ sudo yum -y install php55w-fpm
 # configure php-fpm
 sudo sed -i -e "s/user = nobody/user = nginx/" /etc/php-fpm.d/www.conf
 sudo sed -i -e "s/group = nobody/group = nginx/" /etc/php-fpm.d/www.conf
+sudo sed -i -e "s/user = apache/user = nginx/" /etc/php-fpm.d/www.conf
+sudo sed -i -e "s/group = apache/group = nginx/" /etc/php-fpm.d/www.conf
 
 # start the service 
 sudo service php-fpm start
